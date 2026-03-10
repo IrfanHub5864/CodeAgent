@@ -1,12 +1,11 @@
-def process_items(items):
-    results = []
-    for item in items:
-        # Process the item
-        result = process_item(item)
-        results.append(result)
-        # Potential memory leak: not clearing references
-    return results
+# Before (assuming 'open_file' is a function that opens a file for processing)
+for item in items:
+    file = open_file(item)
+    # Process the file
+    file.close()  # Explicitly close the file
 
-def process_item(item):
-    # Simulate processing
-    return item * 2
+# After (using a context manager)
+for item in items:
+    with open_file(item) as file:
+        # Process the file
+        pass  # File is automatically closed here
