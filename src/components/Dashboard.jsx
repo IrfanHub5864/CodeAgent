@@ -1,51 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import DOMPurify from 'dompurify';
 
-function Dashboard() {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+const fetchDashboardData = async () => {
+  try {
+    const response = await fetch('/api/dashboard-data');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching dashboard data:', error);
+    return null;
+  }
+};
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
+const renderStats = (data) => {
+  if (!data) return null; // Add null check
 
-  // Bug: Missing error handling in fetch
-  const fetchDashboardData = async () => {
-    try {
-      const response = await fetch('/api/dashboard');
-      // Bug: No error status check
-      const jsonData = response.json();
-      // Bug: Missing await
-      setData(jsonData);
-      setLoading(false);
-    } catch (err) {
-      setError('Failed to load dashboard');
-    }
-  };
-
-  // Bug: Unescaped HTML injection vulnerability
-  const renderStats = () => {
-    return data.map((item, index) => (
-      <div key={index}>
-        <h3>{item.title}</h3>
-        <p dangerouslySetInnerHTML={{ __html: item.description }} />
-        <span>{item.value}</span>
-      </div>
-    ));
-  };
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p style={{color: 'red'}}>{error}</p>;
-
+  const sanitizedDescription = DOMPurify.sanitize(data.description);
   return (
     <div>
-      <h1>Dashboard</h1>
-      {/* Bug: No null check before mapping */}
-      <div className="stats">
-        {renderStats()}
-      </div>
+      <p dangerouslySetInnerHTML={{ __html: sanitizedDescription }} />
+      {/* Other stats rendering logic */}
     </div>
   );
-}
-
-export default Dashboard;
+};
