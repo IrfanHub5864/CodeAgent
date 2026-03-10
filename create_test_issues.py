@@ -65,24 +65,26 @@ def main():
     # Test issues with clear descriptions (only one to stay under rate limits)
     test_issues = [
         {
-            "title": "Bug: Login form accepts any password",
+            "title": "Bug: Dashboard has XSS vulnerability and data loading errors",
             "body": """## Description
-The login form accepts any password without validation. Users can log in with incorrect passwords.
+The dashboard component has multiple critical security and functional issues:
+1. XSS vulnerability - uses dangerouslySetInnerHTML without sanitization
+2. Missing await on fetch - data is promise instead of actual data
+3. No null/error handling before rendering
 
 ## Steps to Reproduce
-1. Go to /login
-2. Enter valid username
-3. Enter wrong password
-4. Click login
-5. Expected: Error message
-6. Actual: Login succeeds
+1. Go to /dashboard
+2. Inject malicious HTML in description field
+3. Expected: HTML escaped
+4. Actual: Script executes
 
-## Environment
-- Browser: Chrome latest
-- OS: Windows 10
+## Issues Found
+- Missing await on response.json()
+- No validation of data before rendering
+- Unsafe use of dangerouslySetInnerHTML
 
-The issue is likely in src/components/Login.jsx in the password validation or authentication logic.
-Check the handleSubmit function and auth call.
+The issue is in src/components/Dashboard.jsx in the fetchDashboardData and renderStats functions.
+Fix the async/await, add data validation, and sanitize HTML properly.
 """
         },
     ]
