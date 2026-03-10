@@ -1,10 +1,6 @@
-# Inside the processing loop
-for item in items:
-    # Process the item
-    processed_item = process_item(item)
-    
-    # Use the processed item
-    # ...
-    
-    # Explicitly delete the object
-    del processed_item
+import os
+
+# Example of closing a file after reading
+with open('data_file.txt', 'r') as file:
+    data = file.read()
+# The file is automatically closed here
