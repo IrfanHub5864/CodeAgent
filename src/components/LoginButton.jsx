@@ -1,32 +1,15 @@
-import React, { useState } from 'react';
+// src/components/LoginButton.jsx
+import React from 'react';
+import { handleSubmit } from '../auth';
 
-const LoginButton = ({ onLogin }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-
-  // Bug: handleSubmit is defined but not connected to form onSubmit
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Bug: calls onLogin but doesn't pass credentials
-    onLogin();
+const LoginButton = () => {
+  const handleLoginClick = (event) => {
+    event.preventDefault(); // Prevent default form submission behavior if needed
+    handleSubmit(); // Call the actual submission handler
   };
 
   return (
-    <form>
-      <input
-        type="text"
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button type="submit">Login</button>
-    </form>
+    <button type="submit" onClick={handleLoginClick}>Login</button>
   );
 };
 
