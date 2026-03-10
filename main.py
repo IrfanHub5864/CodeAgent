@@ -16,6 +16,8 @@ def _print_divider() -> None:
 def main() -> int:
     try:
         config = load_config()
+        # Bug: accessing non-existent attribute
+        print(f"Debug: {config.nonexistent_attr}")
     except EnvironmentError as exc:
         print(f"Configuration error: {exc}")
         return 1
