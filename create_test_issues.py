@@ -65,24 +65,24 @@ def main():
     # Test issues with clear descriptions (only one to stay under rate limits)
     test_issues = [
         {
-            "title": "Bug: Login button not responding to clicks",
+            "title": "Bug: Login form accepts any password",
             "body": """## Description
-When users click the login button on the homepage, nothing happens. 
-The button appears to be disabled or not properly connected to the submit event handler.
+The login form accepts any password without validation. Users can log in with incorrect passwords.
 
 ## Steps to Reproduce
-1. Navigate to the login page
-2. Fill in username and password
-3. Click the login button
-4. Expected: Form should submit
-5. Actual: Nothing happens
+1. Go to /login
+2. Enter valid username
+3. Enter wrong password
+4. Click login
+5. Expected: Error message
+6. Actual: Login succeeds
 
 ## Environment
 - Browser: Chrome latest
 - OS: Windows 10
 
-The issue is likely in the auth handler or button click listener.
-Check src/auth.py or src/components/LoginButton.jsx first.
+The issue is likely in src/components/Login.jsx in the password validation or authentication logic.
+Check the handleSubmit function and auth call.
 """
         },
     ]
