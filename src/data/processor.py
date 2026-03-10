@@ -1,23 +1,20 @@
-# Before (simplified example of a potential issue)
-def process_items(items):
-    processed_data = []
-    for item in items:
-        # Processing logic
-        processed_item = process_item(item)
-        processed_data.append(processed_item)
-    return processed_data
+import gc  # For garbage collection
 
-# After (modified to reduce memory leak)
 def process_items(items):
     for item in items:
-        # Processing logic
-        process_item(item)
-        # Ensure no references are held to processed items
-    return None
+        try:
+            # Process the item
+            processed_item = process_item(item)
+            # Use the processed item as needed
+            yield processed_item
+        finally:
+            # Ensure the item and any temporary objects are deleted
+            del item
+            del processed_item
+            # Manually trigger garbage collection (optional, but can help in tight loops)
+            gc.collect()
 
-# Example of using a context manager for resource handling
 def process_item(item):
-    with open('output.txt', 'a') as file:
-        # Use the file
-        file.write(str(item) + '\n')
-    # The file is automatically closed here
+    # Your item processing logic here
+    # Ensure any complex objects or data structures are properly cleared or deleted
+    pass
