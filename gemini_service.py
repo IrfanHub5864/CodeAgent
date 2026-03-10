@@ -10,17 +10,22 @@ def _call_groq(messages: List[dict], api_key: str) -> str:
 
     client = Groq(api_key=api_key)
     
-    response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=messages,
-        max_tokens=2048,
-        timeout=30,
-    )
-    
-    if response.choices and len(response.choices) > 0:
-        return response.choices[0].message.content.strip()
-    
-    return ""
+    try:
+        response = client.chat.completions.create(
+            model="llama-3.2-1b-preview",
+            messages=messages,
+            max_tokens=1500,
+            timeout=15,  # Reduced from 30 to 15 seconds
+        )
+        
+        if response.choices and len(response.choices) > 0:
+            return response.choices[0].message.content.strip()
+        
+        return ""
+    except Exception as e:
+        print(f"[ERROR] Groq API error: {str(e)}")
+        print(f"[INFO] Please check your API key at https://console.groq.com")
+        raise
 
 
 def analyze_issue(title: str, description: str, api_key: str) -> str:
@@ -29,15 +34,15 @@ def analyze_issue(title: str, description: str, api_key: str) -> str:
     system_prompt = (
         "You are a senior software engineer that specializes in debugging "
         "GitHub issues. Identify the root cause and name (or guess) the file "
-        "that most likely contains the bug."
+        "that most likely contains the bug. Be concise."
     )
     user_prompt = (
         f"Title: {title}\n\n"
         f"Description:\n{description or 'No description provided.'}\n\n"
-        "Please analyze the bug, describe why it fails, and answer the "
-        "following questions:\n"
-        "1. What is the likely root cause?\n"
-        "2. Which file or module should be inspected first? "
+        "Analyze this bug briefly and answer:\n"
+        "1. Root cause?\n"
+        "2. Which file first?\n"
+        "3. What context matters?"
         "Prefix your answer with 'File(s):' if possible.\n"
         "3. What additional context or reproduction hints matter?"
     )
