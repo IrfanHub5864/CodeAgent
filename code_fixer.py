@@ -13,7 +13,7 @@ def extract_file_path_from_analysis(analysis: str) -> Optional[str]:
     - in path/to/file.py
     """
     # Pattern 1: "File(s): path/to/file"
-    match = re.search(r"File\(s\):\s*([^\n]+)", analysis, re.IGNORECASE)
+    match = re.search(r"File\(s\):\s*[`\"]?([^\s`\"]+)[`\"]?", analysis, re.IGNORECASE)
     if match:
         return match.group(1).strip()
     
@@ -36,14 +36,14 @@ def extract_code_snippet_from_fix(fix: str) -> Optional[Tuple[str, str]]:
     Returns:
         Tuple of (code_snippet, description) or (None, None) if not found.
     """
-    # Look for code blocks with language specification
-    code_pattern = r"```(?:python|js|javascript|ts|typescript|java|ruby|go|rust|cpp|c|csharp)\n(.*?)\n```"
+    # Look for code blocks with optional language specification
+    code_pattern = r"```\w*\n(.*?)\n```"
     match = re.search(code_pattern, fix, re.DOTALL | re.IGNORECASE)
     
     if match:
         return match.group(1), fix
     
-    # Fallback: look for any code block
+    # Fallback: look for any code block without language
     code_pattern = r"```\n(.*?)\n```"
     match = re.search(code_pattern, fix, re.DOTALL)
     

@@ -62,7 +62,9 @@ def get_file_content(
         "Authorization": f"token {token}",
         "Accept": "application/vnd.github+json",
     }
-    params = {"ref": branch}
+    params = {}
+    if branch:
+        params["ref"] = branch
     
     try:
         response = requests.get(url, headers=headers, params=params, timeout=15)
@@ -162,7 +164,7 @@ def update_file(
     response = requests.put(url, json=data, headers=headers, timeout=15)
     response.raise_for_status()
     
-    return response.status_code == 200
+    return response.status_code in (200, 201)
 
 
 def create_pull_request(

@@ -5,6 +5,24 @@ import requests
 from dotenv import load_dotenv
 
 
+def close_all_issues(owner: str, repo: str, token: str) -> None:
+    """Close every open issue in the repository."""
+    url = f"https://api.github.com/repos/{owner}/{repo}/issues"
+    headers = {
+        "Authorization": f"token {token}",
+        "Accept": "application/vnd.github+json",
+    }
+
+    params = {"state": "open", "per_page": 100}
+    response = requests.get(url, headers=headers, params=params, timeout=15)
+    response.raise_for_status()
+    for issue in response.json():
+        number = issue["number"]
+        patch_url = f"{url}/{number}"
+        requests.patch(patch_url, headers=headers, json={"state": "closed"}, timeout=15)
+    print("All open issues have been closed.")
+
+
 def create_test_issue(owner: str, repo: str, token: str, title: str, body: str) -> dict:
     """Create a test issue in the repository."""
     
@@ -37,11 +55,14 @@ def main():
     if not all([owner, repo, token]):
         print("Error: Missing environment variables")
         return 1
+
+    # clear any existing issues before generating new ones
+    close_all_issues(owner, repo, token)
     
     print(f"Creating test issues in {owner}/{repo}...")
     print()
     
-    # Test issues with clear descriptions
+    # Test issues with clear descriptions (only one to stay under rate limits)
     test_issues = [
         {
             "title": "Bug: Login button not responding to clicks",
@@ -62,60 +83,6 @@ The button appears to be disabled or not properly connected to the submit event 
 
 The issue is likely in the auth handler or button click listener.
 Check src/auth.py or src/components/LoginButton.jsx first.
-"""
-        },
-        {
-            "title": "Bug: Database connection timeout on startup",
-            "body": """## Description
-The application fails to start with a database connection timeout error.
-This happens immediately on startup when trying to initialize the database connection pool.
-
-## Error Message
-```
-ConnectionError: Database connection timeout after 30 seconds
-```
-
-## Expected
-The application should establish database connection within timeout period.
-
-## Actual
-Connection fails with timeout error.
-
-The problem is likely in src/database/connection.py in the connection initialization logic.
-May need to increase timeout or fix connection string parsing.
-"""
-        },
-        {
-            "title": "Bug: API returns wrong status code for errors",
-            "body": """## Description
-When API endpoints encounter validation errors, they return HTTP 200 (success) instead of appropriate error codes like 400 or 422.
-
-## Example
-- POST /api/users with invalid email returns 200 instead of 422
-- GET /api/items/invalid-id returns 200 instead of 404
-
-## Expected Behavior
-Endpoints should return appropriate HTTP status codes:
-- 400 for bad requests
-- 404 for not found
-- 500 for server errors
-
-This is likely in src/api/handlers.py or src/api/routes.py where error responses are constructed.
-"""
-        },
-        {
-            "title": "Bug: Memory leak in data processing loop",
-            "body": """## Description
-The application memory usage keeps increasing when processing large data batches.
-Memory is not being freed after each iteration.
-
-## Observations
-- Processing 1000 items: 200MB
-- Processing 2000 items: 500MB  
-- Processing 3000 items: 1000MB+
-
-The issue is likely in src/data/processor.py in the loop that processes items.
-Check if objects are being properly garbage collected or if there's a circular reference.
 """
         },
     ]
